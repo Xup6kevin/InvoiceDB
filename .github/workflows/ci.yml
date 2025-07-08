@@ -28,5 +28,14 @@ jobs:
     - name: Run lint
       run: npm run lint
 
+    - name: Wait for Postgres to be ready
+      run: |
+        for i in {1..30}; do
+          nc -z localhost 5432 && echo "Postgres is up" && exit 0
+          echo "Waiting for Postgres..."
+          sleep 1
+        done
+        echo "Postgres did not start in time" && exit 1
+
     - name: Build project
       run: npm run build
