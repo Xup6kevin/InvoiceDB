@@ -12,6 +12,20 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:15
+        ports:
+          - 5432:5432
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: your_db_name
+        options: >-
+          --health-cmd="pg_isready -U postgres"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
 
     steps:
     - name: Checkout code
@@ -27,15 +41,6 @@ jobs:
 
     - name: Run lint
       run: npm run lint
-
-    - name: Wait for Postgres to be ready
-      run: |
-        for i in {1..30}; do
-          nc -z localhost 5432 && echo "Postgres is up" && exit 0
-          echo "Waiting for Postgres..."
-          sleep 1
-        done
-        echo "Postgres did not start in time" && exit 1
 
     - name: Build project
       run: npm run build
